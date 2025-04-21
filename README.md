@@ -23,7 +23,7 @@ Using [packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```lua
 use {
-  'xscoder/NeoGit',
+  'xsoder/NeoGit',
   requires = {
     'nvim-lua/plenary.nvim',
     'nvim-telescope/telescope.nvim', -- Optional, for enhanced file picking
@@ -36,7 +36,7 @@ Using [vim-plug](https://github.com/junegunn/vim-plug):
 ```vim
 Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim' " Optional
-Plug 'xcsoder/neogit'
+Plug 'xcoder/neogit'
 ```
 
 ## Usage
