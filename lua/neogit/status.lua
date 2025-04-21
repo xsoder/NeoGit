@@ -129,6 +129,8 @@ function M.setup_keymaps()
         return
     end
 
+    local ui_buffers = require("neogit.ui.buffers")
+
     local function map(key, callback, desc)
         vim.api.nvim_buf_set_keymap(buf, "n", key, "", {
             callback = callback,
@@ -137,6 +139,27 @@ function M.setup_keymaps()
             desc = desc,
         })
     end
+
+    -- Harpoon-like buffer pinning keymaps
+    map("P", function()
+        ui_buffers.pin_buffer(buf)
+        vim.notify("Pinned buffer: " .. tostring(buf))
+    end, "Pin buffer (Harpoon style)")
+
+    map("R", function()
+        ui_buffers.repin_buffer(buf)
+        vim.notify("Repinned buffer to top: " .. tostring(buf))
+    end, "Repin buffer (move to top)")
+
+    map("K", function()
+        ui_buffers.move_pinned_buffer_up(buf)
+        vim.notify("Moved pinned buffer up: " .. tostring(buf))
+    end, "Move pinned buffer up")
+
+    map("J", function()
+        ui_buffers.move_pinned_buffer_down(buf)
+        vim.notify("Moved pinned buffer down: " .. tostring(buf))
+    end, "Move pinned buffer down")
 
     -- Basic operations
     map("s", function()
@@ -239,7 +262,13 @@ function M.setup_keymaps()
 
     map("?", function()
         -- Show help
-        ui.show_help({
+        local pins = require("neogit.ui.buffers").get_pinned_buffers()
+        local pin_lines = {"Pinned buffers:"}
+        for i, b in ipairs(pins) do
+            table.insert(pin_lines, string.format("  %d: buffer %s", i, tostring(b)))
+        end
+        if #pins == 0 then table.insert(pin_lines, "  (none)") end
+        ui.show_help(vim.list_extend({
             "s - Stage file/hunk under cursor",
             "u - Unstage file/hunk under cursor",
             "c - Commit staged changes",
@@ -249,9 +278,13 @@ function M.setup_keymaps()
             "b - Branch operations menu",
             "z - Stash operations menu",
             "S - Stash all changes (staged & unstaged)",
+            "P - Pin buffer (Harpoon style)",
+            "R - Repin buffer (move to top)",
+            "K - Move pinned buffer up",
+            "J - Move pinned buffer down",
             "? - Show this help",
             "q - Close NeoGit buffer",
-        })
+        }, pin_lines))
     end, "Help")
 
     map("q", function()

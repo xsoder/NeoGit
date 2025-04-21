@@ -73,7 +73,6 @@ function M.status()
                 status = "untracked",
             })
         elseif fields[1] == "1" or fields[1] == "2" then
-            -- Normal changed entries or renamed/copied
             local entry = {
                 path = fields[9],
                 status = fields[2],

@@ -2,6 +2,48 @@
 local M = {}
 local utils = require("neogit.utils")
 
+-- Harpoon-like pinned buffers
+local pinned_buffers = {}
+
+--- Pin a buffer (adds to end if not present)
+function M.pin_buffer(bufnr)
+    for _, v in ipairs(pinned_buffers) do
+        if v == bufnr then return end
+    end
+    table.insert(pinned_buffers, bufnr)
+end
+
+--- Repin buffer (move to top)
+function M.repin_buffer(bufnr)
+    for i, v in ipairs(pinned_buffers) do
+        if v == bufnr then
+            table.remove(pinned_buffers, i)
+            break
+        end
+    end
+    table.insert(pinned_buffers, 1, bufnr)
+end
+
+--- Move pinned buffer up (swap with previous)
+function M.move_pinned_buffer_up(bufnr)
+    for i, v in ipairs(pinned_buffers) do
+        if v == bufnr and i > 1 then
+            pinned_buffers[i], pinned_buffers[i-1] = pinned_buffers[i-1], pinned_buffers[i]
+            break
+        end
+    end
+end
+
+--- Move pinned buffer down (swap with next)
+function M.move_pinned_buffer_down(bufnr)
+    for i, v in ipairs(pinned_buffers) do
+        if v == bufnr and i < #pinned_buffers then
+            pinned_buffers[i], pinned_buffers[i+1] = pinned_buffers[i+1], pinned_buffers[i]
+            break
+        end
+    end
+end
+
 -- Setup highlight groups (blue for title, cyan for separator)
 local function setup_neogit_highlights()
     vim.api.nvim_set_hl(0, "NeoGitTitle", { fg = "#61afef", bold = true })
@@ -126,6 +168,11 @@ function M.create_menu(title, options, callback)
     })
 
     return buf, win
+end
+
+--- Get all pinned buffers
+function M.get_pinned_buffers()
+    return vim.tbl_extend("force", {}, pinned_buffers)
 end
 
 return M

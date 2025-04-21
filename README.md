@@ -75,6 +75,17 @@ In the NeoGit status buffer:
 - `?` - Show help
 - `q` - Close NeoGit buffer
 
+### Harpoon-like Buffer Pinning
+
+NeoGit supports Harpoon-style buffer pinning and movement in the status buffer:
+
+- `P` — Pin the current buffer (adds to the pinned list)
+- `R` — Repin the current buffer (move to top of pinned list)
+- `K` — Move the current pinned buffer up in the list
+- `J` — Move the current pinned buffer down in the list
+
+Pinned buffers can be viewed in the help menu (`?`). This allows you to quickly mark and reorder important NeoGit buffers for fast navigation, similar to [ThePrimeagen/harpoon](https://github.com/ThePrimeagen/harpoon).
+
 ## Configuration
 
 NeoGit can be configured in your init.lua:
