@@ -131,18 +131,16 @@ function M.submit()
     -- Execute commit
     git.commit(message)
 
-    -- Close buffer
-    vim.api.nvim_win_close(0, true)
-
-    -- Restore status buffer in parent window
+    -- Restore status buffer in the current window (do not close window)
+    local status = require("neogit.status")
+    local win = 0  -- current window
     if state.parent_win and vim.api.nvim_win_is_valid(state.parent_win) then
-        local status = require("neogit.status")
-        vim.api.nvim_win_set_buf(state.parent_win, status.__private_state.buffer)
-        status.update_status_content()
-    else
-        require("neogit.status").refresh()
+        win = state.parent_win
     end
-
+    if vim.api.nvim_win_is_valid(win) then
+        vim.api.nvim_win_set_buf(win, status.__private_state.buffer)
+        status.update_status_content()
+    end
     vim.notify("Changes committed successfully")
 end
 
