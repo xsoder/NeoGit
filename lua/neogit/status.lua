@@ -210,9 +210,32 @@ function M.setup_keymaps()
     end, "Stash operations")
 
     map("S", function()
-        -- Stash all changes
-        require("neogit.stash").create()
-    end, "Stash all changes")
+        -- Stage all files (unstaged + untracked)
+        local status = git.status()
+        local staged_any = false
+        if status then
+            -- Stage unstaged
+            for _, item in ipairs(status.unstaged or {}) do
+                if item.path then
+                    git.stage(item.path)
+                    staged_any = true
+                end
+            end
+            -- Stage untracked
+            for _, item in ipairs(status.untracked or {}) do
+                if item.path then
+                    git.stage(item.path)
+                    staged_any = true
+                end
+            end
+        end
+        M.update_status_content()
+        if staged_any then
+            vim.notify("Staged all unstaged and untracked files")
+        else
+            vim.notify("No files to stage", vim.log.levels.INFO)
+        end
+    end, "Stage all files")
 
     map("?", function()
         -- Show help
