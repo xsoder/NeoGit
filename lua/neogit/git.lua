@@ -25,7 +25,7 @@ function M.command(args, callback, cwd)
     local sync = not callback
 
     if sync then
-        job:sync()
+        job:sync(30000) -- Increased timeout to 30 seconds for slow git operations
         if job.code ~= 0 then
             vim.notify("Git error: " .. table.concat(stderr_results, "\n"), vim.log.levels.ERROR)
             return nil

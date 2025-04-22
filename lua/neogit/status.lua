@@ -129,6 +129,11 @@ function M.setup_keymaps()
         return
     end
 
+    -- Remove all existing normal mode keymaps for this buffer to avoid duplicates
+    for _, mapping in ipairs(vim.api.nvim_buf_get_keymap(buf, "n")) do
+        vim.api.nvim_buf_del_keymap(buf, "n", mapping.lhs)
+    end
+
     local ui_buffers = require("neogit.ui.buffers")
 
     local function map(key, callback, desc)
@@ -191,21 +196,7 @@ function M.setup_keymaps()
         require("neogit.commit").create(state.window)
     end, "Commit")
 
-    local function push_selected_branch()
-        local branches = git.branches()
-        local branch_names = {}
-        for _, branch in ipairs(branches) do
-            table.insert(branch_names, branch.name)
-        end
-        vim.ui.select(branch_names, { prompt = "Select branch to push:" }, function(selected)
-            if selected then
-                git.push(nil, selected)
-                vim.notify("Pushed branch: " .. selected)
-                M.update_status_content()
-            end
-        end)
-    end
-    map("p", push_selected_branch, "Push")
+    map("p", M._push_selected_branch, "Push")
 
 
     map("f", function()
