@@ -306,13 +306,34 @@ function M.refresh()
     M.update_status_content()
 end
 
+M._push_selected_branch_running = false
 M._push_selected_branch = function()
+    local buf = state.buffer
+    if not buf or not vim.api.nvim_buf_is_valid(buf) then
+        return
+    end
+    -- Remove 'p' keymap to debounce
+    pcall(vim.api.nvim_buf_del_keymap, buf, 'n', 'p')
+    if M._push_selected_branch_running then
+        vim.notify("Push branch prompt already running, skipping duplicate.", vim.log.levels.WARN)
+        return
+    end
+    M._push_selected_branch_running = true
+    vim.notify("[NeoGit] Push branch prompt started", vim.log.levels.INFO)
     local branches = git.branches()
     local branch_names = {}
     for _, branch in ipairs(branches) do
         table.insert(branch_names, branch.name)
     end
     vim.ui.select(branch_names, { prompt = "Select branch to push:" }, function(selected)
+        M._push_selected_branch_running = false
+        -- Restore 'p' keymap
+        vim.api.nvim_buf_set_keymap(buf, 'n', 'p', '', {
+            callback = M._push_selected_branch,
+            noremap = true,
+            silent = true,
+            desc = 'Push',
+        })
         if selected then
             git.push(nil, selected)
             vim.notify("Pushed branch: " .. selected)
