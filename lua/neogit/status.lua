@@ -124,6 +124,8 @@ end
 
 -- Set up keymaps for status buffer
 function M.setup_keymaps()
+    vim.notify("[NeoGit DEBUG] setup_keymaps called", vim.log.levels.INFO)
+
     local buf = state.buffer
     if not buf or not vim.api.nvim_buf_is_valid(buf) then
         return
@@ -308,6 +310,8 @@ end
 
 M._push_selected_branch_running = false
 M._push_selected_branch = function()
+    vim.notify("[NeoGit DEBUG] _push_selected_branch called", vim.log.levels.INFO)
+    print(debug.traceback())
     local buf = state.buffer
     if not buf or not vim.api.nvim_buf_is_valid(buf) then
         return
@@ -325,7 +329,11 @@ M._push_selected_branch = function()
     for _, branch in ipairs(branches) do
         table.insert(branch_names, branch.name)
     end
+    -- Guard to ensure callback runs only once (Telescope workaround)
+    local called = false
     vim.ui.select(branch_names, { prompt = "Select branch to push:" }, function(selected)
+        if called then return end
+        called = true
         M._push_selected_branch_running = false
         -- Restore 'p' keymap
         vim.api.nvim_buf_set_keymap(buf, 'n', 'p', '', {
