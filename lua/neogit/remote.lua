@@ -234,21 +234,38 @@ function M.pull_menu()
     end
 
     local options = {}
-
     for _, remote in ipairs(remotes) do
         table.insert(options, { text = remote.name, value = remote.name })
     end
 
     ui.create_menu("Pull from Remote", options, function(remote_name)
-        if remote_name then
-            local result = git.pull(remote_name)
-
-            if result then
-                vim.notify("Pulled from remote: " .. remote_name, vim.log.levels.INFO)
-                -- Refresh status buffer
-                require("neogit.status").refresh()
+        if not remote_name then return end
+        -- Get remote branches using git ls-remote
+        local output = git.command({ "ls-remote", '--heads', remote_name })
+        if not output or #output == 0 then
+            vim.notify("No branches found on remote " .. remote_name, vim.log.levels.INFO)
+            return
+        end
+        local branch_options = {}
+        for _, line in ipairs(output) do
+            local hash, ref = line:match("(%w+)%s+refs/heads/(.+)")
+            if ref then
+                table.insert(branch_options, { text = ref, value = ref })
             end
         end
+        if #branch_options == 0 then
+            vim.notify("No branches found on remote " .. remote_name, vim.log.levels.INFO)
+            return
+        end
+        ui.create_menu("Select branch to pull from", branch_options, function(branch_name)
+            if branch_name then
+                local result = git.pull(remote_name, branch_name)
+                if result then
+                    vim.notify("Pulled from " .. remote_name .. "/" .. branch_name, vim.log.levels.INFO)
+                    require("neogit.status").refresh()
+                end
+            end
+        end)
     end)
 end
 
