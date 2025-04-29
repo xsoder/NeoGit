@@ -36,27 +36,30 @@ function M.create(parent_win)
 	end)
 
 	-- Add some help text to the buffer
-	local lines = {
-		"",
-		"# Please enter the commit message for your changes. Lines starting",
-		"# with '#' will be ignored, and an empty message aborts the commit.",
-		"#",
-		"# NeoGit: Press <C-c><C-c> to confirm the commit or <C-c><C-k> to cancel.",
-	}
+	local function build_commit_message_lines()
+		local lines = {
+			"",
+			"# Please enter the commit message for your changes. Lines starting",
+			"# with '#' will be ignored, and an empty message aborts the commit.",
+			"#",
+			"# NeoGit: Press 'c' to commit or 'q' to cancel.",
+		}
 
-	-- Add status to commit message
-	local status = git.status()
-
-	if status then
-		table.insert(lines, "#")
-		table.insert(lines, "# Changes to be committed:")
-
-		for _, item in ipairs(status.staged) do
-			local status_text = utils.status_to_text(item.status:sub(1, 1))
-			table.insert(lines, "#   " .. status_text .. ": " .. item.path)
+		-- Add status to commit message
+		local status = git.status()
+		if status then
+			table.insert(lines, "#")
+			table.insert(lines, "# Changes to be committed:")
+			for _, item in ipairs(status.staged) do
+				local status_text = utils.status_to_text(item.status:sub(1, 1))
+				table.insert(lines, "#   " .. status_text .. ": " .. item.path)
+			end
 		end
+
+		return lines
 	end
 
+	local lines = build_commit_message_lines()
 	vim.api.nvim_buf_set_lines(state.buffer, 0, -1, false, lines)
 
 	-- Set cursor to the first empty line (for commit message)
@@ -84,13 +87,13 @@ function M.create(parent_win)
 		})
 	end
 
-	-- Commit on Ctrl-c Ctrl-c
-	map("<C-c><C-c>", function()
+	-- Commit on 'c'
+	map("c", function()
 		M.submit()
 	end, "Submit commit")
 
-	-- Cancel on Ctrl-c Ctrl-k
-	map("<C-c><C-k>", function()
+	-- Cancel on 'q'
+	map("q", function()
 		M.cancel()
 	end, "Cancel commit")
 end

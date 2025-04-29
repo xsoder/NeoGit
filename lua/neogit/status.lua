@@ -311,7 +311,7 @@ end
 M._push_selected_branch_running = false
 M._push_selected_branch = function()
     vim.notify("[NeoGit DEBUG] _push_selected_branch called", vim.log.levels.INFO)
-    print(debug.traceback())
+
     local buf = state.buffer
     if not buf or not vim.api.nvim_buf_is_valid(buf) then
         return
