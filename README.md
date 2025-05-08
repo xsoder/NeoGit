@@ -38,7 +38,17 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'nvim-telescope/telescope.nvim' " Optional
 Plug 'xcoder/neogit'
 ```
+Using [lazy.nvim](https://github.com/srwls/lazy.nvim):
 
+```lua
+return{
+  "xsoder/Neogit",
+  dependencies = {
+    'nvim-lua/plenary.nvim',
+    'nvim-telescope/telescope.nvim', -- Optional, for enhanced file picking
+  }
+}
+```
 ## Usage
 
 ### Basic Commands
